@@ -1,78 +1,121 @@
+using Assets;
+using System.Collections;
+using TMPro;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
 
 public class PlayerController : MonoBehaviour
 {
-    public float moveSpeed = 3f;
-    public float sprintSpeed = 2f;
-
-    private Rigidbody2D rb;
+    private Player player;
+    public GameObject attackProjectile; // Assign your projectile prefab in the Inspector
     private Animator anim;
-    private SpriteRenderer sr;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private bool isAttackOnCooldown = false;
+    private bool timerRunning = false;
+    private float elapsedTime = 0f;
+    public float attackCooldown = 1f; // Time between attacks
+    public TMP_Text healthText;
+    public TMP_Text timerText;
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
+        player = GetComponent<Player>();
+        if (player == null)
+        {
+            Debug.LogError("Player component not found!");
+        }
+
         anim = GetComponent<Animator>();
-        sr = GetComponent<SpriteRenderer>();
+        if (anim == null)
+        {
+            Debug.LogError("Animator component not found!");
+        }
+
+        if (healthText == null)
+        {
+            Debug.LogError("Health text component not found!");
+        }
+
+        if (timerText == null)
+        {
+            Debug.LogError("Time text component not found!");
+        }
+
+        healthText.text = $"HP: {player.HP}";
+        StartTimer();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        Move();
-
-    }
-
-    void Move()
-    {
-        // Get the input from the player
-        float calculatedMovement = 0f;
-
+        if (player == null) return;
+        healthText.text = $"HP: {player.HP}";
+        if (player.isDead)
+        {
+            StopTimer();
+            healthText.text = "You died!";
+            return;
+        }
 
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
+        Vector2 movement = new Vector2(horizontal, vertical);
+        bool isSprinting = Input.GetKey(KeyCode.LeftShift);
 
-        // Check if the Shift key is pressed. This means the player is sprinting
-        if (Input.GetKey(KeyCode.LeftShift))
+        player.Move(movement, isSprinting);
+
+        // Attack Input
+        if (Input.GetMouseButtonDown(0) && !isAttackOnCooldown) // Left mouse button click
         {
-            calculatedMovement = moveSpeed + sprintSpeed;
-            anim.SetBool("isRunning", true);
+            Attack();
+            StartCoroutine(StartCooldown());
         }
-        else
+    }
+
+    public void StartTimer()
+    {
+        timerRunning = true;
+        StartCoroutine(UpdateTimer());
+    }
+
+    public void StopTimer()
+    {
+        timerRunning = false;
+        StopCoroutine(UpdateTimer());
+    }
+
+    private IEnumerator UpdateTimer()
+    {
+        while (timerRunning)
         {
-            calculatedMovement = moveSpeed;
-            anim.SetBool("isRunning", false);
+            elapsedTime += Time.deltaTime;
+            UpdateTimerText();
+            yield return null; // Wait for the next frame
         }
+    }
 
-        // Move the player
-        rb.linearVelocity = new Vector2(horizontal * calculatedMovement, vertical * calculatedMovement);
-
-        if (anim != null)
+    private void UpdateTimerText()
+    {
+        if (timerText != null)
         {
-            bool isWalking = horizontal != 0 || vertical != 0;
-            anim.SetBool("isWalking", isWalking);
-        }
-
-        // Flip the player sprite if he's moving in the opposite direction
-        if (horizontal != 0)
-        {
-            sr.flipX = horizontal < 0;
+            int minutes = Mathf.FloorToInt(elapsedTime / 60f);
+            int seconds = Mathf.FloorToInt(elapsedTime % 60f);
+            timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
         }
     }
 
     void Attack()
     {
-        
+        if (attackProjectile != null)
+        {
+            Instantiate(attackProjectile, transform.position, transform.rotation);
+            anim.Play("Attack");
+        }
+        else
+        {
+            Debug.LogError("Projectile prefab not assigned!");
+        }
     }
-
-    void TakeDamage()
+    IEnumerator StartCooldown()
     {
-
-    }
-
-    void Die()
-    {
-
+        isAttackOnCooldown = true;
+        yield return new WaitForSeconds(attackCooldown);
+        isAttackOnCooldown = false;
     }
 }
