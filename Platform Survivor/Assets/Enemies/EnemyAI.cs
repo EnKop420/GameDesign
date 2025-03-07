@@ -15,7 +15,6 @@ public class EnemyAI : MonoBehaviour
     private bool isAttackOnCooldown = false;
     private Animator anim;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");

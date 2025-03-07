@@ -397,7 +397,18 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      candeliar_0: 184072650999508264
+      candeliar_1: 4810533787541704885
+      candeliar_10: -2118602593956622847
+      candeliar_2: 5230798024687083314
+      candeliar_3: 5084529359021155813
+      candeliar_4: -84291151296422516
+      candeliar_5: 2689367831715863358
+      candeliar_6: -2155535823921277195
+      candeliar_7: -796099979398142244
+      candeliar_8: -8091440405216581469
+      candeliar_9: -4137710770697110904
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

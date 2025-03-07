@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      GorgonAttack_0: 5323342598406647389
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
